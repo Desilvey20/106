@@ -10,7 +10,7 @@ class Task{
         this.frequency = frequency;
         this.status = status;
 
-        this.name = "Sergio";
+        this.name = "David";
     }
 
 }

@@ -38,16 +38,24 @@ function saveTask(){
 
     //create an object
     let task = new Task(important, title, desc, dueDate, location, invites, color, frequency, status);
-    console.log(task);
-    displayTask(task);
-
+  
+    
+   
     $.ajax({
         type:"post",
         url:"https://fsdiapi.azurewebsites.net/api/tasks/",
         data: JSON.stringify(task),
+        contentType:"application/json",
+        succes: function(res){
+            console.log("Task saved", res);
+            displayTask(task);
+        },
+        error: function(errorDetails){
+            console.error("save failed", errorDetails);
+        },
     });
 
-
+    
 
 }
 
@@ -120,14 +128,34 @@ function displayTask(task){
 
     $("#tasks").append(syntax);
 }
+function fetchTasks(){
+    $.ajax({
+        type: "get",
+        url: "https://fsdiapi.azurewebsites.net/api/tasks",
+        success: function(res){
+            let data = JSON.parse(res);
+
+            for(let i = 0; i < data.length; i++){
+                let task = data[i];
+                displayTask(task);
+            }
+        },
+        error: function(err){
+            console.error("Error rettrieving data", err);
+        }
+    });
+
+}
 
 function init(){
     console.log("task manager page")
 
     //assign events
     $("#iImportant").click(toggleImportance);
-    $("#btnTogglePanel").click(saveTask);
+    $("#btnTogglePanel").click(togglePanel);
     $("#btnSave").click(saveTask);
+
+    fetchTasks();
 
 }
 
