@@ -2,6 +2,7 @@ const iconImportant ="iImportant fas fa-star";
 const iconNonImportant = "iImportant far fa-star";
 var important = false;
 var panelVisible = true;
+var total = 0;
 
 function toggleImportance(){
     if(important) {
@@ -18,11 +19,16 @@ function toggleImportance(){
 function togglePanel(){
     if(panelVisible){
         $("#form").hide();
+        $("#btntogglePanel").text("< show");
         panelVisble = false;
+        
     }
     else{
         $("#form").show();
+        $("#btntogglePanel").text("hide >");
         panelVisible = true;
+        
+        
     }
 }
 
@@ -49,6 +55,9 @@ function saveTask(){
         succes: function(res){
             console.log("Task saved", res);
             displayTask(task);
+            clearForm();
+            total += 1;
+            $("#headCount").text("you have " + total + " tasks");
         },
         error: function(errorDetails){
             console.error("save failed", errorDetails);
@@ -57,6 +66,13 @@ function saveTask(){
 
     
 
+}
+
+function clearForm(){
+    $("input").val("");
+    $("textarea").val("");
+    $("select").val("0");
+    $("selColor").val("#ffffff");
 }
 
 function getStatusText(status){
@@ -135,10 +151,16 @@ function fetchTasks(){
         success: function(res){
             let data = JSON.parse(res);
 
+            total = 0;
             for(let i = 0; i < data.length; i++){
                 let task = data[i];
+
+                if(task.name == "David"){
+                    total += 1;
                 displayTask(task);
             }
+        }
+        $("#headCount").text("you have " + total + " tasks");
         },
         error: function(err){
             console.error("Error rettrieving data", err);
@@ -147,17 +169,31 @@ function fetchTasks(){
 
 }
 
+function clearAllTasks(){
+    $.ajax({
+        type: "delete",
+        url: "https://fsdiapi.azurewebsites.net/api/tasks/clear/David",
+        success: function(){
+            location.reload();
+
+        },
+        error: function(err){
+            console.log("Error clearing task", err)
+        }
+        
+    })
+}
+
 function init(){
     console.log("task manager page")
-
     //assign events
     $("#iImportant").click(toggleImportance);
     $("#btnTogglePanel").click(togglePanel);
     $("#btnSave").click(saveTask);
+    $("#btnClearAll").click(clearAllTasks);
 
     fetchTasks();
 
 }
-
 
 window.onload = init;
